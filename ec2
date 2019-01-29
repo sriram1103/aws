@@ -369,4 +369,222 @@ Monitor instance Status:
 
 
 
+Network and Security:
+
+Key-Pair:
+ * The keys that Amazon EC2 uses are 2048-bit SSH-2 RSA keys
+ * public key in AWS and private key with users.
+ * Amazon EC2 accepts the following formats:
+    OpenSSH public key format (the format in ~/.ssh/authorized_keys)
+    Base64 encoded DER format
+    SSH public key file format as specified in RFC4716
+ * Connect to instance if the key is lost
+      * stop the instance
+      * detach its root volume 
+      * attach it to another instance as a data volume
+      * modify the authorized_keys file 
+      * move the volume back to the original instance 
+      * restart the instance. 
+      
+Security Groups:
+ * A security group acts as a virtual firewall that controls the traffic for one or more instances. 
+ * One or more SG can be added to an instance
+ * Add rules to allow trafic to/from instance
+ * Add rules dynamically
+ * Rules in all SG will be considered
+ * Instance in VPC should have SG respective ti that VPC
+ * SG can be changed after instance launch
+ * SG are associated with n/w interfaces
+ * instance SG are tied to primary nw interface (eth0/ens192)
+
+Security Group Rules:
+
+  *  By default, security groups allow all outbound traffic.
+  *  Security group rules are always permissive; you can't create rules that deny access.
+  *  Security groups are stateful — if you send a request from your instance, the response traffic for that request is allowed to flow in regardless of inbound security group rules. For VPC security groups, this also means that responses to allowed inbound traffic are allowed to flow out, regardless of outbound rules. For more information, see Connection Tracking.
+  *  You can add and remove rules at any time. Your changes are automatically applied to the instances associated with the security group.
+  * When you associate multiple security groups with an instance, the rules from each security group are effectively aggregated to create one set of rules. We use this set of rules to determine whether to allow access.
+  
+  For each rule, you specify the following:
+  *  Protocol: The protocol to allow. The most common protocols are 6 (TCP) 17 (UDP), and 1 (ICMP).
+  *  Port range : For TCP, UDP, or a custom protocol, the range of ports to allow. You can specify a single port number (for example, 22), or range of port numbers (for example, 7000-8000).
+  *  ICMP type and code: For ICMP, the ICMP type and code.
+  *  Source or destination: The source (inbound rules) or destination (outbound rules) for the traffic. Specify one of these options:
+      An individual IPv4 address. You must use the /32 prefix length; for example, 203.0.113.1/32.
+      An individual IPv6 address. You must use the /128 prefix length; for example 2001:db8:1234:1a00::123/128.
+      A range of IPv4 addresses, in CIDR block notation, for example, 203.0.113.0/24.
+      A range of IPv6 addresses, in CIDR block notation, for example, 2001:db8:1234:1a00::/64.
+      The prefix list ID for the AWS service; for example, pl-1a2b3c4d. For more information, see Gateway VPC Endpoints in the Amazon VPC User Guide.
+      Another security group. This allows instances associated with the specified security group to access instances associated with this security group. This does not add rules from the source security group to this security group. You can specify one of the following security groups:
+      The current security group
+      A different security group for the same VPC
+      A different security group for a peer VPC in a VPC peering connection
+   * (Optional) Description: You can add a description for the rule; for example, to help you identify it later. A description can be up to 255 characters in length. Allowed characters are a-z, A-Z, 0-9, spaces, and ._-:/()#,@[]+=;{}!$*.
+
+ 
+Connection Tracking:
+
+  * Rules are applied based on the connection state of the traffic to determine if the traffic is allowed or denied. 
+    This allows security groups to be stateful — 
+       responses to inbound traffic are allowed to flow out of the instance
+        regardless of outbound security group rules, and vice versa.
+  * For example, if you initiate an ICMP ping command to your instance from your home computer, 
+    and your inbound security group rules allow ICMP traffic, 
+    information about the connection (including the port information) is tracked. 
+
+    Response traffic from the instance for the ping command is not tracked as a new request, 
+    but rather as an established connection and is allowed to flow out of the instance, 
+    even if your outbound security group rules restrict outbound ICMP traffic.
+
+  * ICMP traffic is always tracked, regardless of rules.
+
+Amazon EC2 Instance IP Addressing:
+  * EC2 and VPC support both ipv4 and ipv6
+  * by default ipv4
+  
+ Private IPv4 Addresses and Internal DNS Hostnames:
+  * When instance is launched, internal ip and hostname is  provided by dhcp.
+  * one private on primary interface is assigned from the subnet chosed
+  * Unlike primary private IP addresses, secondary private IP addresses can be reassigned from one instance to another.
+  * A private IPv4 address remains associated with the network interface when the instance is stopped and restarted
+    and is released when the instance is terminated.
+  
+ Public IPv4 Addresses and External DNS Hostnames
+  * Reachable from internet
+  * Assigned durinng instance launch, can be enabled/disabled during launch
+  * DNS is resolved by using the hostname to the public ip outside and to private ip inside
+  * The public IP address is mapped to the primary private IP address through NAT
+  * When a public IP address is disassociated from your instance,
+    it is released back into the public IPv4 address pool, and you cannot reuse it.
+    
+    * We release your instance's public IP address when it is stopped or terminated. Your stopped instance receives a new public IP address when it is restarted.
+    * We release your instance's public IP address when you associate an Elastic IP address with it. 
+      When you disassociate the Elastic IP address from your instance, it receives a new public IP address.
+    * If the public IP address of your instance in a VPC has been released, 
+      it will not receive a new one if there is more than one network interface attached to your instance.
+    * If your instance's public IP address is released while it has a secondary private IP address 
+      that is associated with an Elastic IP address, the instance does not receive a new public IP address.
+  
+Multiple IP Addresses:
+  * Number of interfaces depend on instance type
+  
+  How Multiple IP Addresses Work
+    The following list explains how multiple IP addresses work with network interfaces:
+
+     * You can assign a secondary private IPv4 address to any network interface. The network interface can be attached to or detached from the instance.
+     * You can assign multiple IPv6 addresses to a network interface that's in a subnet that has an associated IPv6 CIDR block.
+     * You must choose the secondary IPv4 from the IPv4 CIDR block range of the subnet for the network interface.
+     * You must choose IPv6 addresses from the IPv6 CIDR block range of the subnet for the network interface.
+     * You associate security groups with network interfaces, not the individual IP addresses. Therefore, each IP address you specify in a network interface is subject to the security group of its network interface.
+     * Multiple IP addresses can be assigned and unassigned to network interfaces attached to running or stopped instances.
+     * Secondary private IPv4 addresses that are assigned to a network interface can be reassigned to another one if you explicitly allow it.
+     * An IPv6 address cannot be reassigned to another network interface; you must first unassign the IPv6 address from the existing network interface.
+     * When assigning multiple IP addresses to a network interface using the command line tools or API, the entire operation fails if one of the IP addresses can't be assigned.
+     * Primary private IPv4 addresses, secondary private IPv4 addresses, Elastic IP addresses, and IPv6 addresses remain with the network interface when it is detached from an instance or attached to another instance.
+     * Although you can't move the primary network interface from an instance, you can reassign the secondary private IPv4 address of the primary network interface to another network interface.
+     * You can move any additional network interface from one instance to another.
+      
+      The following list explains how multiple IP addresses work with Elastic IP addresses (IPv4 only):
+        - Each private IPv4 address can be associated with a single Elastic IP address, and vice versa.
+        - When a secondary private IPv4 address is reassigned to another interface, the secondary private IPv4 address retains its association with an Elastic IP address.
+        - When a secondary private IPv4 address is unassigned from an interface, an associated Elastic IP address is automatically disassociated from the secondary private IPv4 address.
+  
+Steps:
+-  Assigning a Secondary Private IPv4 Address
+-  Configuring the Operating System on Your Instance to Recognize the Secondary Private IPv4 Address
+-  Associating an Elastic IP Address with the Secondary Private IPv4 Address
+-  Viewing Your Secondary Private IPv4 Addresses
+-  Unassigning a Secondary Private IPv4 Address
+
+
+
+Elastic IP Addresses:
+
+* Static ips (ipv4)
+* reachable from internet
+* linked to aws account
+
+ Basics:
+  - secure elastic ip from aws account
+  - attach to the instance interface, public ip would be released
+  - detach from interface, and attach to some other interface
+  - for use in a specific region only.
+  - Charged if not assigned or instance is stopped
+  - one elastic ip is free
+  
+Elastic Network Interfaces:
+A network interface can include the following attributes:
+
+    A primary private IPv4 address from the IPv4 address range of your VPC
+    One or more secondary private IPv4 addresses from the IPv4 address range of your VPC
+    One Elastic IP address (IPv4) per private IPv4 address
+    One public IPv4 address
+    One or more IPv6 addresses
+    One or more security groups
+    A MAC address
+    A source/destination check flag
+    A description
+
+Placement Groups:
+ * which determines how instances are placed on underlying hardware
+ * Cluster – clusters instances into a low-latency group in a single Availability Zone
+ * Partition – spreads instances across logical partitions, ensuring that instances in one partition do not share underlying hardware with instances in other partitions
+ * Spread – spreads instances across underlying hardware
+
+Limitations:
+* Cluster cannot spread across availability zones
+* only certain instance types are allowed for Cluster PG
+* same instance type for all instances in a cluster placement group.
+* Partitioned PG can have max of 7 partition/AZ
+* doesn’t guarantee an even distribution of instances across all partitions.
+* Partition PG are not supported for Dedicated Hosts
+* A partition placement group with Dedicated Instances can have a maximum of two partitions.
+* A spread placement group supports a maximum of seven running instances per Availability Zone. 
+* Spread placement groups are not supported for Dedicated Instances or Dedicated Hosts.
+
+Storage:
+    Amazon Elastic Block Store - durable, block-level storage, used for DB.
+    Amazon EC2 Instance Store - Direct storage, used for OS
+    Amazon Elastic File System (Amazon EFS) - Sharing
+    Amazon Simple Storage Service (Amazon S3) - Backup
+
+Amazon Elastic Block Store:
+ * primary storage for data that requires frequent updates, like DB
+ * volumes persist independently from the running life of an EC2 instance.
+ * use it like any other physical hard drive
+ *  EBS provides the following volume types: General Purpose SSD (gp2), Provisioned IOPS SSD (io1), Throughput Optimized HDD (st1), Cold HDD (sc1), and Magnetic (standard, a previous-generation type).
+ 
+ Benefits:
+ * Data Availability:
+   - Created in AZ and replicaed.
+   - Cab be attached to instance in the AZ.
+   - only one instance can be attached to the EBS volume
+ * Data persistence
+   - off-instance storage that can persist independently
+   - By default, EBS volumes that are created and attached to an instance at launch are deleted when that instance is terminated. 
+   - You can modify this behavior by changing the value of the flag DeleteOnTermination to false when you launch the instance.
+ * Data encryption
+ * Snapshots
+ * Flexibility
+
+Amazon EC2 Instance Store:
+
+* instance store provides temporary block-level storage for your instance.
+* This storage is located on disks that are physically attached to the host computer.
+* Instance store is ideal for temporary storage of information that changes frequently, 
+  such as buffers, caches, scratch data, and other temporary content,
+  or for data that is replicated across a fleet of instances, such as a load-balanced pool of web servers.
+* The data in an instance store persists only during the lifetime of its associated instance  
+* Data lost, if instance stops/terminate or drive fails
+
+  
+Block Device Mapping:
+* A block device is a storage device that moves data in sequences of bytes or bits (blocks).
+
+EC2Rescue for Linux
+  
+  
+  
+  
+
 
