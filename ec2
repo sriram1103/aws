@@ -1,0 +1,372 @@
+Amazon EC2 provides the following features:
+• Virtual computing environments, known as instances
+• Preconfigured templates for your instances, known as Amazon Machine Images (AMIs), that package
+the bits you need for your server (including the operating system and additional software)
+• Various configurations of CPU, memory, storage, and networking capacity for your instances, known as
+instance types
+• Secure login information for your instances using key pairs (AWS stores the public key, and you store
+the private key in a secure place)
+• Storage volumes for temporary data that's deleted when you stop or terminate your instance, known
+as instance store volumes
+• Persistent storage volumes for your data using Amazon Elastic Block Store (Amazon EBS), known as
+Amazon EBS volumes
+• Multiple physical locations for your resources, such as instances and Amazon EBS volumes, known as
+regions and Availability Zones
+• A firewall that enables you to specify the protocols, ports, and source IP ranges that can reach your
+instances using security groups
+• Static IPv4 addresses for dynamic cloud computing, known as Elastic IP addresses
+• Metadata, known as tags, that you can create and assign to your Amazon EC2 resources
+• Virtual networks you can create that are logically isolated from the rest of the AWS cloud, and that you
+can optionally connect to your own network, known as virtual private clouds (VPCs)
+
+An Amazon Machine Image (AMI) is a template that contains a software configuration (for example, an
+operating system, an application server, and applications). From an AMI, you launch an instance, which is
+a copy of the AMI running as a virtual server in the cloud. You can launch multiple instances of an AMI
+
+When an instance is stopped, the instance performs a normal shutdown, and then transitions to a
+stopped state. All of its Amazon EBS volumes remain attached, and you can start the instance again at a
+later time
+
+When an instance is in a stopped state, you can attach or detach Amazon EBS volumes. You can also
+create an AMI from the instance, and you can change the kernel, RAM disk, and instance type
+
+When an instance is terminated, the instance performs a normal shutdown. The root device volume is
+deleted by default, but any attached Amazon EBS volumes are preserved by default, determined by each
+volume's deleteOnTermination attribute setting. The instance itself is also deleted, and you can't
+start the instance again at a later time.
+
+To prevent accidental termination, you can disable instance termination
+disableApiTermination
+instanceInitiatedShutdownBehavior
+
+Each region is a separate geographic area. Each region has multiple, isolated locations
+known as Availability Zones
+
+Each Amazon EC2 region is designed to be completely isolated from the other Amazon EC2 regions. This
+achieves the greatest possible fault tolerance and stability.
+
+When you launch an instance, you must select an AMI that's in the same region. If the AMI is in
+another region, you can copy the AMI to the region you're using.
+
+When you launch an instance, you can select an Availability Zone or let us choose one for you. If you
+distribute your instances across multiple Availability Zones and one instance fails, you can design your
+application so that an instance in another Availability Zone can handle requests.
+
+To coordinate Availability Zones across accounts, you must use the AZ ID, which is a unique and
+consistent identifier for an Availability Zone. For example, use1-az1 is an AZ ID for the us-east-1
+Region and it has the same location in every AWS account.
+
+aws ec2 describe-regions
+aws ec2 describe-availability-zones --region region-name
+
+You can choose between AMIs backed by Amazon EC2 instance store and AMIs backed by Amazon EBS.
+We recommend that you use AMIs backed by Amazon EBS, because they launch faster and use persistent
+storage
+
+Instance Store-backed Instances
+
+  Instances that use instance stores for the root device automatically have one or more instance store
+  volumes available, with one volume serving as the root device volume. When an instance is launched, the
+  image that is used to boot the instance is copied to the root volume.
+  
+  Any data on the instance store volumes persists as long as the instance is running,
+  
+  instance store-backed instances do not support the Stop action
+  
+  After an instance store-backed instance fails or terminates, it cannot be restored
+  
+Amazon EBS-backed Instances
+  Instances that use Amazon EBS for the root device automatically have an Amazon EBS volume attached.
+  When you launch an Amazon EBS-backed instance, we create an Amazon EBS volume for each Amazon
+  EBS snapshot referenced by the AMI you use
+  
+  An Amazon EBS-backed instance can be stopped and later restarted without affecting data stored in the
+  attached volumes. There are various instance– and volume-related tasks you can do when an Amazon
+  EBS-backed instance is in a stopped state. For example, you can modify the properties of the instance,
+  change its size, or update the kernel it is using, or you can attach your root volume to a different running
+  instance for debugging or any other purpose
+  
+  If an Amazon EBS-backed instance fails, you can restore your session by following one of these methods:
+  
+  • Stop and then start again (try this method first).
+  • Automatically snapshot all relevant volumes and create a new AMI. For more information, see Creating
+  an Amazon EBS-Backed Linux AMI (p. 104).
+  • Attach the volume to the new instance by following these steps:
+  1. Create a snapshot of the root volume.
+  2. Register a new AMI using the snapshot.
+  3. Launch a new instance from the new AMI.
+  4. Detach the remaining Amazon EBS volumes from the old instance.
+  5. Reattach the Amazon EBS volumes to the new instance.
+
+  By default, the root device volume for an AMI backed by Amazon EBS is deleted when the instance
+  terminates. To change the default behavior, set the DeleteOnTermination attribute to false using a
+  block device mapping.
+  
+  aws ec2 run-instances --block-device-mappings file://mapping.json other parameters...  # to modify during instance launch
+  aws ec2 modify-instance-attribute --instance-id i-1234567890abcdef0 --block-device-mappings file://mapping.json #modify running instance
+  
+Security groups act as a firewall for associated instances, controlling both inbound and outbound traffic
+at the instance level
+
+Best Practices for Amazon EC2
+
+  Security and Network
+
+      Manage access to AWS resources and APIs using identity federation, IAM users, and IAM roles. Establish credential management policies and procedures for creating, distributing, rotating, and revoking AWS access credentials. For more information, see IAM Best Practices in the IAM User Guide.
+
+      Implement the least permissive rules for your security group. For more information, see Security Group Rules.
+
+      Regularly patch, update, and secure the operating system and applications on your instance. For more information about updating Amazon Linux 2 or the Amazon Linux AMI, see Managing Software on Your Linux Instance. For more information about updating your Windows instance, see Updating Your Windows Instance in the Amazon EC2 User Guide for Windows Instances.
+
+   Storage
+
+      Understand the implications of the root device type for data persistence, backup, and recovery. For more information, see Storage for the Root Device.
+
+      Use separate Amazon EBS volumes for the operating system versus your data. Ensure that the volume with your data persists after instance termination. For more information, see Preserving Amazon EBS Volumes on Instance Termination.
+
+      Use the instance store available for your instance to store temporary data. Remember that the data stored in instance store is deleted when you stop or terminate your instance. If you use instance store for database storage, ensure that you have a cluster with a replication factor that ensures fault tolerance.
+
+  Resource Management
+
+      Use instance metadata and custom resource tags to track and identify your AWS resources. For more information, see Instance Metadata and User Data and Tagging Your Amazon EC2 Resources.
+
+      View your current limits for Amazon EC2. Plan to request any limit increases in advance of the time that you'll need them. For more information, see Amazon EC2 Service Limits.
+
+  Backup and Recovery
+
+      Regularly back up your EBS volumes using Amazon EBS snapshots, and create an Amazon Machine Image (AMI) from your instance to save the configuration as a template for launching future instances.
+
+      Deploy critical components of your application across multiple Availability Zones, and replicate your data appropriately.
+
+      Design your applications to handle dynamic IP addressing when your instance restarts. For more information, see Amazon EC2 Instance IP Addressing.
+
+      Monitor and respond to events. For more information, see Monitoring Amazon EC2.
+
+      Ensure that you are prepared to handle failover. For a basic solution, you can manually attach a network interface or Elastic IP address to a replacement instance. For more information, see Elastic Network Interfaces. For an automated solution, you can use Amazon EC2 Auto Scaling. For more information, see the Amazon EC2 Auto Scaling User Guide.
+
+      Regularly test the process of recovering your instances and Amazon EBS volumes if they fail.
+      
+      
+Linux AMI Virtualization Types
+  Linux Amazon Machine Images use one of two types of virtualization: 
+    paravirtual (PV) or 
+    hardware virtual machine (HVM). 
+ The main differences between PV and HVM AMIs are the way in which they boot and whether 
+  they can take advantage of special hardware extensions (CPU, network, and storage) for better performance.
+  
+  HVM AMIs
+
+    HVM AMIs are presented with a fully virtualized set of hardware and boot by executing,
+    the master boot record of the root block device of your image. 
+    
+    This virtualization type provides the ability to run an operating system directly 
+     on top of a virtual machine without any modification, as if it were run on the bare-metal hardware. 
+     
+    The Amazon EC2 host system emulates some or all of the underlying hardware that is presented to the guest.
+
+    Unlike PV guests, HVM guests can take advantage of hardware extensions that provide 
+      fast access to the underlying hardware on the host system  
+      
+  PV AMIs
+
+    PV AMIs boot with a special boot loader called PV-GRUB, 
+        which starts the boot cycle and then chain loads the kernel specified in the menu.lst file on your image. 
+    Paravirtual guests can run on host hardware that does not have explicit support for virtualization, 
+     but they cannot take advantage of special hardware extensions such as enhanced networking or GPU processing. 
+     
+    The following previous generation instance types support PV AMIs:
+     C1, C3, HS1, M1, M3, M2, and T1. 
+    
+    Current generation instance types do not support PV AMIs.
+  
+  PV on HMI:
+  
+  Creating an Amazon EBS-Backed Linux AMI:
+
+    * Start from EBS Backed Amazon Image instance
+    * Modify the instance as required
+    * Stop the instance
+    * Create the IMage, AWS automatically registers
+  
+    During AMI-creation process, Amazon EC2 creates snapshots of your instance's root volume and any other EBS volumes attached to your instance. 
+    You're charged for the snapshots until you deregister the AMI and delete the snapshots.
+
+  Creating an Instance Store-Backed Linux AMI
+  
+    * Start from instance stored Backed Amazon Image instance
+    * Modify the instance as required
+    * Stop the instance
+    * Create the Image
+    * Bundle is created with image.manifest.xml and image.part.xx
+    * upload the template to S3 and register it
+
+Instance Types:
+
+ * General Purpose
+ * Compute Optimized
+ * Memory Optimized
+ * Accelerated Computing
+ * Storage Optimized
+ * Instance Features
+ 
+Instance Lifecycle:
+ * Pending - for the first time started
+ * Started 
+ * Stopping
+ * Stopped
+ * reboot
+ * shuttind-down
+ * terminated
+ 
+ Only started instance is billed, stopped instance is billed if it is hibernated.
+ 
+ * Start and stop - stop is shutting down,To modify an instance attribute it should be stopped.
+ * Hibernate
+ * Reboot
+ * Retire - An instance is scheduled to be retired when AWS detects irreparable failure of the underlying hardware hosting the instance
+ * Recover - 
+ * Terminate - delete your instance when you no longer need it.
+ 
+ When you hibernate a running instance, the following happens:
+
+    When you initiate hibernation, the instance moves to the stopping state. We signal the operating system to perform hibernation (suspend-to-disk), which freezes all the processes, saves the contents of the RAM to the Amazon EBS root volume, and then performs a regular shutdown.
+    After the shutdown is complete, the instance moves to the stopped state.
+    Any Amazon EBS volumes remain attached to the instance, and their data persists, including the saved contents of the RAM.
+    In most cases, the instance is migrated to a new underlying host computer when it's restarted, which is the same as what happens when you stop and restart an instance.
+    When you restart the instance, the instance boots up and the operating system reads in the contents of the RAM from the Amazon EBS root volume before unfreezing processes to resume its state.
+    The instance retains its private IPv4 addresses and any IPv6 addresses when hibernated and restarted. We release the public IPv4 address and assign a new one when you restart it.
+    The instance retains its associated Elastic IP addresses. You're charged for any Elastic IP addresses associated with a hibernated instance.
+    When you hibernate a ClassicLink instance, it's unlinked from the VPC to which it was linked. You must link the instance to the VPC again after restarting it.
+    
+ Examples of problems that cause system status checks to fail include:
+    Loss of network connectivity
+    Loss of system power
+    Software issues on the physical host
+    Hardware issues on the physical host that impact network reachability
+
+
+
+Configuring Instance:
+ Software:
+  * To update system software use screen session, ssh connection may discontinue due to ssh timeout or n/w error.
+ Users:
+  * ec2-user is default in most os.
+  * create user using useradd, and add the key pair to aaccess
+ Process state control
+  * C-states control the sleep levels that a core can enter when it is idle.[C0 (shallow)-C6 (deep idle)]
+  * P-states control the desired performance (in CPU frequency) from a core [P0 (high)-P15(low)]
+ Time:
+  * Amazon provides the Amazon Time Sync Service, which you can access from your instance (169.254.169.123).
+ CPU:
+  * Amazon EC2 instances support multithreading, which enables multiple threads to run concurrently on a single CPU core.
+  * Each thread is represented as a virtual CPU (vCPU) on the instance. 
+  * An instance has a default number of CPU cores, which varies according to instance type. 
+  * For example, an m5.xlarge instance type has two CPU cores and two threads per core by default—four vCPUs in total.
+  * CPU options can only be specified during instance launch and cannot be modified after launch.
+  * Persist after stop
+  * To disable multithreading,set cpu core to one.
+ Hostname:
+  * When you launch an instance, it is assigned a hostname that is a form of the private, eg ip-12-34-56-78.us-west-2.compute.internal
+  * Each time you stop and restart your Amazon EC2 instance (unless you are using an Elastic IP address), 
+    the public IPv4 address changes, and so does your public DNS name, system hostname, and shell prompt.
+ Running Commands on Your Linux Instance at Launch
+  User Data and Shell Scripts -  Add scripts to init
+  User Data and the Console
+    * In the Amazon EC2 console, choose the instance, Actions, Instance State, and then choose Stop.
+    * Choose Actions, Instance Settings, and then choose View/Change User Data.
+    * The following example is a shell script that writes "Hello World" to a file in the /tmp directory. Copy and paste into the User Data field, and then choose Save.
+    
+              #!/bin/bash
+              /bin/echo "Hello World." >> /tmp/sdksdfjsdl
+               
+  User Data and cloud-init Directives
+    #cloud-config
+    repo_update: true
+    repo_upgrade: all
+
+    packages:
+     - httpd
+     - mariadb-server
+
+    runcmd:
+     - [ sh, -c, "amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2" ]
+     - systemctl start httpd
+  User Data and the AWS CLI
+     aws ec2 run-instances --image-id ami-abcd1234 --count 1 --instance-type m3.medium \
+    --key-name my-key-pair --subnet-id subnet-abcd1234 --security-group-ids sg-abcd1234 \
+    --user-data file://my_script.txt
+
+    aws ec2 run-instances --image-id ami-abcd1234 --count 1 --instance-type m3.medium \
+    --key-name my-key-pair --subnet-id subnet-abcd1234 --security-group-ids sg-abcd1234 \
+    --user-data echo "sromet"
+ 
+Instance METADATA:
+  Retrive:
+   * using local ip address to get metadata
+     - curl http://169.254.169.254/latest/meta-data/
+     - curl http://169.254.169.254/latest/meta-data/ami-id
+
+User Data:
+ * http://169.254.169.254/latest/user-data
+Dynaminc data:
+ * http://169.254.169.254/latest/dynamic/
+ 
+Elastic Interface:
+ * Amazon Elastic Inference (EI) is a resource you can attach to your Amazon EC2 instances to accelerate your deep learning (DL) inference workloads
+ * Amazon EI accelerates operations defined by TensorFlow, Apache MXNet, and the Open Neural Network Exchange (ONNX) format on low-cost, GPU-based, DL inference accelerators.
+
+Monitoring:
+    What are your goals for monitoring?
+    What resources will you monitor?
+    How often will you monitor these resources?
+    What monitoring tools will you use?
+    Who will perform the monitoring tasks?
+    Who should be notified when something goes wrong?
+  
+   CPU utilization  - CPUUtilization
+   Network utilization - NetworkIn,NetworkOut
+   Disk performance - DiskReadOps,DiskWriteOps,
+   Disk Reads/Writes - DiskReadBytes,DiskWriteBytes
+   Memory utilization, disk swap utilization, disk space utilization, page file utilization, log collection - using cloud watch agent
+
+Automated Monitoring Tools:
+   * System Status Checks - System check, report failuers
+       Loss of network connectivity
+       Loss of system power
+       Software issues on the physical host
+       Hardware issues on the physical host that impact network reachability
+   * Instance Staus check - Monitor software and nw config
+      Failed system status checks
+      Misconfigured networking or startup configuration
+      Exhausted memory
+      Corrupted file system
+      Incompatible kernel
+  * Amazon Cloud Watch Alarms - watch a single metric over a time period you specify, 
+    and perform one or more actions based on the value of the metric relative to a given threshold over a number of time periods
+  * Amazon CloudWatch Events - automate your AWS services and respond automatically to system events.
+  * Amazon CloudWatch Logs - monitor, store, and access your log files from Amazon EC2 instances, AWS CloudTrail, or other sources
+  * Amazon EC2 Monitoring Scripts - Perl scripts that can monitor memory, disk, and swap file usage in your instances. 
+  
+Manual Monitoring:
+ * EC2 dashboard
+ * Cloudwatch Dashboard
+
+Monitor System Status:
+ * Using system status in EC2 instance page
+ * Using scheduled events
+ 
+  Types of Scheduled Events
+    Amazon EC2 supports the following types of scheduled events for your instances:
+        Instance stop: The instance will be stopped. When you start it again, it's migrated to a new host computer. Applies only to instances backed by Amazon EBS.
+        Instance retirement: The instance will be stopped or terminated.
+        Reboot: Either the instance will be rebooted (instance reboot) or the host computer for the instance will be rebooted (system reboot).
+        System maintenance: The instance might be temporarily affected by network maintenance or power maintenance.
+
+Monitor instance Status:
+ * Cloud Instance Monitoring
+   Basic - 5 minute interval, by default enabled
+   Detailed - 1 minute interval
+
+
+
+
