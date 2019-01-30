@@ -1,0 +1,172 @@
+* Amazon EC2 Auto Scaling helps you ensure that you have the correct number of Amazon EC2 instances available to handle the load for your application
+*  create collections of EC2 instances, called Auto Scaling groups
+* Define minimum, maximum and desired number instances required per Scaling Group
+* Scaling policies to create and destroy instances as required
+
+Components:
+* Groups
+* Configuration templates
+* Scaling options
+
+Benifits:
+* Fault tolerance
+* Availability
+* cost management
+
+Auto Scaling Life Cycle:
+  Scale Out:
+    *  manually increase the size of the group
+    *  create a scaling policy to automatically increase the size of the group
+    *  set up scaling by schedule to increase the size of the group at a specific time
+  
+    When a scale out event occurs, 
+     * the Auto Scaling group launches the required number of EC2 instances, using its assigned launch configuration.
+     * These instances start in the Pending state. 
+       If you add a lifecycle hook to your Auto Scaling group, you can perform a custom action here.
+     * When each instance is fully configured and passes the Amazon EC2 health checks, 
+       it is attached to the Auto Scaling group and it enters the InService state. 
+     * The instance is counted against the desired capacity of the Auto Scaling group.
+   
+  Instances In Service:
+    Instances remain in the InService state until one of the following occurs:
+      A scale in event occurs, and Amazon EC2 Auto Scaling chooses to terminate this instance in order to reduce the size of the Auto Scaling group.
+      You put the instance into a Standby state.
+      You detach the instance from the Auto Scaling group. 
+      The instance fails a required number of health checks, so it is removed from the Auto Scaling group, terminated, and replaced. 
+
+  Scale In:
+    *  manually decrease the size of the group
+    *  create a scaling policy to automatically decrease the size of the group
+    *  set up scaling by schedule to decrease the size of the group at a specific time    
+    
+    Create one scale-in for one scale-out
+    
+    When a scale in event occurs, 
+    * the Auto Scaling group detaches one or more instances. 
+    * The Auto Scaling group uses its termination policy to determine which instances to terminate. 
+    * Instances that are in the process of detaching from the Auto Scaling group and shutting down enter the Terminating state, and can't be put back into service. 
+    * Finally, the instances are completely terminated and enter the Terminated state
+    
+ Lifecycle Hooks
+ * You can add a lifecycle hook to your Auto Scaling group so that you can perform custom actions when instances launch or terminate.
+ autoscaling:EC2_INSTANCE_LAUNCHING: 
+  * instance moves from Pending to Pending:wait state
+  * after complete the hook it moves to Pending:Proceed state
+  * after fully configured it moves to InService State
+ autoscaling:EC2_INSTANCE_TERMINATING:
+  Terminating --> Terminating:Wait --> Terminating:Proceed --> Terminated
+
+ Enter and Exit Standby:
+  * Instance in In-Service can be put to standby
+  * Managed by scaling group, but not part of applications as instance in standby state
+  
+Launch Configurations
+ * A launch configuration is an instance configuration template that an Auto Scaling group uses to launch EC2 instances. 
+ When you create a launch configuration, you specify information for the instances. 
+  * ID of the Amazon Machine Image (AMI)
+  * the instance type
+  * a key pair 
+  * one or more security groups
+  * block device mapping.
+ 
+ Launch Configuration (many to one) Auto Sacling Group
+ 
+ Launch templates are similar to Launch Configurations except that they can be versioned.
+ 
+ Scaling:
+ 
+  Scaling Options:
+    * Maintain current instance levels at all times
+    * Manual scaling
+        - Change the Size of Your Auto Scaling Group Using the Console
+        - Change the Size of Your Auto Scaling Group Using the AWS CLI
+        - Attach EC2 Instances to Your Auto Scaling Group
+        - Detach EC2 Instances from Your Auto Scaling Group
+    * Scheduled Scaling
+        - create a scheduled action. 
+          The scheduled action tells Amazon EC2 Auto Scaling to perform a scaling action at specified times. 
+        - To create a scheduled scaling action 
+          - specify the start time when the scaling action should take effect
+          - the new minimum, maximum, and desired sizes for the scaling action. 
+        - At the specified time, Amazon EC2 Auto Scaling updates the group with the values for minimum, maximum, and desired size specified by the scaling action.
+        
+        When you create a scheduled action, keep the following in mind.
+
+        - The order of execution for scheduled actions is guaranteed within the same group, but not for scheduled actions across groups.
+        -  A scheduled action generally executes within seconds. 
+           However, the action may be delayed for up to two minutes from the scheduled start time. 
+           Because actions within an Auto Scaling group are executed in the order they are specified, scheduled actions with scheduled start times close to each other can take longer to execute.
+        -  You can create a maximum of 125 scheduled actions per Auto Scaling group.
+        -  A scheduled action must have a unique time value. 
+            If you attempt to schedule an activity at a time when another scaling activity is already scheduled, 
+            the call is rejected with an error message noting the conflict.
+        -  Cooldown periods are not supported.
+        -  You can also schedule scaling actions for resources beyond Amazon EC2.
+        
+    * Dynamic Scale
+        When you configure dynamic scaling, you must define how to scale in response to changing demand. 
+        For example, you have a web application that currently runs on two instances and you do not want the CPU utilization of the Auto Scaling group to exceed 70 percent. 
+        You can configure your Auto Scaling group to scale automatically to meet this need. 
+        The policy type determines how the scaling action is performed.
+        
+        Scaling Policy Types
+        - Target tracking scaling — Increase or decrease the current capacity of the group based on a target value for a specific metric. 
+          eg : 
+              * keep the average aggregate CPU utilization of your Auto Scaling group at 50 percent
+              * keep the request count per target of your Elastic Load Balancing target group at 1000 for your Auto Scaling group.
+          Considerations:
+          - Not all metrics work for target tracking.
+            eg: number of requests received by the load balancer fronting the Auto Scaling group, Load Balancer request latency 
+          - it scales out the SG when the metric is above and not below
+          - does not scale out when the data is insufficient, like n/w issues
+          - for appl availability, scale out happens more fast and scale in happens gradually
+          - scale in can be disabled
+          - can be applied for resources other than EC2
+          - do not edit/delete cloud watch alarms, ll be deleted with the scaling policy
+          
+           
+        - Step scaling — Increase or decrease the current capacity of the group based on a set of scaling adjustments, known as step adjustments, that vary based on the size of the alarm breach.
+          * based on a set of scaling adjustments, known as step adjustments
+          * after scaling activity is started, responds to the alarms meanwhile
+          * specify warmup time for scale out operation
+            Instance Warmup:
+            - you can specify the number of seconds that it takes for a newly launched instance to warm up.
+            - Until its specified warm-up time has expired, an instance is not counted
+            - not considered for sclae out operation
+            
+            
+          Scaling Adjustment Types:
+           - ChangeInCapacity
+           - PercentChangeInCapacity
+           - ExactCapacity
+          
+        - Simple scaling — Increase or decrease the current capacity of the group based on a single scaling adjustment.
+          * once scaling activity is started, it waits for cooldown/scaling activy to complete to respond to alarms
+    
+  Multiple Scaling: 
+    * An Auto Scaling group can have more than one scaling policy attached to it. 
+    * You can sometimes combine scaling policies to maximize the performance of an Auto Scaling group.
+ 
+ 
+ Scaling Cooldown:
+ 
+  * The cooldown period helps to ensure that your Auto Scaling group doesn't launch or terminate additional instances 
+    before the previous scaling activity takes effect
+  *  only for simple scaling policies
+  * default is 300 seconds
+  
+Termination Policy:
+ * to define which instances should be terminated first durin scale-in
+ * Default termination policy selects the instances based on Availability zone.
+ Types:
+ - Defaul
+ - OldestInstance
+ - NewsetInstance
+ - OldestLaunchConfiguration
+ - ClosestToNextInstanceHour
+ - OldestLaunchTemplate
+ - AllocationStrategy
+ 
+ 
+ 
+ 
