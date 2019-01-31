@@ -1,0 +1,46 @@
+Amazon Virtual Private Cloud (Amazon VPC) enables you to launch AWS resources into a virtual network that you've defined. 
+This virtual network closely resembles a traditional network that you'd operate in your own data center, 
+ with the benefits of using the scalable infrastructure of AWS.
+ 
+Contents
+    VPCs and Subnets
+    Supported Platforms
+    Default and Nondefault VPCs
+    Accessing the Internet
+    Accessing a Corporate or Home Network
+    Accessing Services Through AWS PrivateLink
+
+VPCs and Subnets
+  * A virtual private cloud (VPC) is a virtual network dedicated to your AWS account. 
+  * It is logically isolated from other virtual networks in the AWS
+  
+  * A subnet is a range of IP addresses in your VPC. 
+  * You can launch AWS resources into a specified subnet. 
+  * Use a public subnet for resources that must be connected to the internet,
+    and a private subnet for resources that won't be connected to the internet.
+    
+  * To protect the AWS resources in each subnet, you can use multiple layers of security,
+     including security groups and network access control lists (ACL)    
+    
+By launching your instances into a VPC instead of EC2-Classic, you gain the ability to:
+
+  *  Assign static private IPv4 addresses to your instances that persist across starts and stops
+  *  Optionally associate an IPv6 CIDR block to your VPC and assign IPv6 addresses to your instances
+  *  Assign multiple IP addresses to your instances
+  *  Define network interfaces, and attach one or more network interfaces to your instances
+  *  Change security group membership for your instances while they're running
+  *  Control the outbound traffic from your instances (egress filtering) in addition to controlling the inbound traffic to them (ingress filtering)
+  *  Add an additional layer of access control to your instances in the form of network access control lists (ACL)
+  *  Run your instances on single-tenant hardware    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
