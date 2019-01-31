@@ -1,0 +1,73 @@
+* AWS Systems Manager is a collection of capabilities for configuring and managing your 
+  Amazon EC2 instances, on-premises servers and virtual machines, and other AWS resources at scale. 
+* includes a unified interface that allows you to easily centralize operational data and automate tasks across your AWS resources
+* shortens the time to detect and resolve operational problems in your infrastructure. 
+* gives you a complete view of your infrastructure performance and configuration, 
+  simplifies resource and application management, and makes it easy to operate and manage your infrastructure at scale.
+  
+ How it Works?
+   Configure Systems Manager: Configure using console,API,CLI
+   Verification and processing: verify and process 
+   Reporting: Rport back
+   
+Access:
+ Create an IAM role and add policies for SSM role
+ Add this role to the SSM managed Instance 
+ 
+Capabilities:
+  Resource Groups
+    * resource is an entity you can work with in AWS, EC2,EBS volume, a security group, or VPC. 
+    * A resource group is a collection of AWS resources that are all in the same AWS region, and that match criteria provided in a query. 
+    * build queries in the Resource Groups console, or pass them as arguments to Resource Groups commands in the AWS CLI. 
+    * With Resource Groups, you can create a custom console that organizes and consolidates information based on criteria that you specify in tags. 
+    * You can also use groups as the basis for viewing monitoring and configuration insights in AWS Systems Manager.
+  
+  Insights:
+    Builtin Insights:  detailed information about the resources
+    Cloudwatch Dashboards:  to monitor your resources in a single view
+    Inventory Management:  
+      * automates the process of collecting software inventory from managed instances
+      * Global inventory Association - applies to all instance with out explict inventory association
+        * check and applies the global invetory configuration
+        * automatically adds new instances to this association
+      * Type of data collected:
+        - Application
+        - AWS Components
+        - Files
+        - NW config
+        - Windows update,roles, registry
+        - Instance Details
+        - Services
+        - Custom Inventory
+      * Specify which instances to collect
+      * Specify the time to collect
+    
+    Configuration Compliance: to scan your fleet of managed instances for patch compliance and configuration inconsistencies
+    
+  Actions
+    Automation: to automate common maintenance and deployment tasks. 
+    Run COmmand: to perform on-demand changes like updating applications or running commands on a target set of dozens or hundreds of instances.
+    Session Manager: to manage your Amazon EC2 instances through an interactive one-click browser-based shell or through the AWS CLI.
+    Pathc management: to automate the process of patching your managed instances
+    Distributor: to create and deploy packages to managed instances
+    Maintanence Window:to set up recurring schedules for managed instances to execute administrative tasks like installing patches,etc
+    State Management:  to automate the process of keeping your managed instances in a defined state
+     
+  Shared Resources
+    Managed Instance: 
+      * any Amazon EC2 instance or on-premises machine–a server or a virtual machine (VM)–in your hybrid environment that is configured for Systems Manager
+      * installed with SSM agent
+    Activations:
+      * To set up servers and VMs in your hybrid environment as managed instances, you need to create a managed-instance activation.
+      *  After you complete the activation, you receive an activation code and ID.
+      * This code/ID combination functions like an Amazon EC2 access ID and secret key to provide secure access to the Systems Manager service from your managed instances.
+    System mgmt Documents:
+      * defines the actions that Systems Manager perform
+      * command document, automation document
+    Parameter Store:
+      * provides secure, hierarchical storage for configuration data and secrets management
+      
+Install ssm using system commands: yum install <ssm url>
+Enable and start : systemctl enbale amazon-ssm-agent and systemctl start amazon-ssm-agent
+view logs: /var/log/amazon/ssm/amazon-ssm-agent.log, /var/log/amazon/ssm/errors.log
+
