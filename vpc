@@ -223,6 +223,21 @@ VPC Endpoints:
  - gateway endpoints - a gateway that is a target for a specified route in your route table, used for traffic destined to a supported AWS service
  
  
+Network ACLs:
+* Nw ACL is an optional layer of security for your VPC that acts as a firewall for controlling traffic in and out of one or more subnets. 
+* You might set up network ACLs with rules similar to your security groups in order to add an additional layer of security to your VPC.
+* Similar to Security Groups
+* Security Groups control access at instane level and ACL at subnet level
+
+
+Security Group	                                                          Network ACL
+-----------------------------------------------------------------------------------------
+Operates at the instance level                                           Operates at the subnet level
+Supports allow rules only                                                Supports allow rules and deny rules
+Is stateful:                                                             Is stateless
+  Return traffic is automatically allowed, regardless of any rules           Return traffic must be explicitly allowed by rules
+We evaluate all rules before deciding whether to allow traffic           We process rules in number order when deciding whether to allow traffic
+Applies to an instance only if someone specifies the security group      Automatically applies to all instances in the subnets it's associated with (therefore, you don't have to rely on users to specify the security group)
     
     
     
