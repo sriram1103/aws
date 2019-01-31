@@ -1,0 +1,154 @@
+Route53
+* Amazon Route 53 is a highly available and scalable Domain Name System (DNS) web service. 
+* You can use Route 53 to perform three main functions in any combination: 
+  - domain registration, 
+  - DNS routing, 
+  - health checking.
+  
+How DNS Works:
+  - A user opens a web browser, enters www.example.com in the address bar, and presses Enter.
+  - The request for www.example.com is routed to a DNS resolver, which is typically managed by the user's internet service provider (ISP), such as a cable internet provider, a DSL broadband provider, or a corporate network.
+  - The DNS resolver for the ISP forwards the request for www.example.com to a DNS root name server.
+  - The DNS resolver forwards the request for www.example.com again, this time to one of the TLD name servers for .com domains. 
+    The name server for .com domains responds to the request with the names of the four Route 53 name servers that are associated with the example.com domain.
+  - The DNS resolver caches (stores) the four Route 53 name servers. The next time someone browses to example.com, the resolver skips steps 3 and 4 because it already has the name servers for example.com. The name servers are typically cached for two days.
+  - The DNS resolver chooses a Route 53 name server and forwards the request for www.example.com to that name server.
+  - The Route 53 name server looks in the example.com hosted zone for the www.example.com record, gets the associated value, such as the IP address for a web server, 192.0.2.44, and returns the IP address to the DNS resolver.
+  - The DNS resolver finally has the IP address that the user needs. The resolver returns that value to the web browser.
+    Note
+      The DNS resolver also caches the IP address for example.com for an amount of time that you specify so that it can respond more quickly the next time someone browses to example.com. For more information, see time to live (TTL).
+  - The web browser sends a request for www.example.com to the IP address that it got from the DNS resolver. This is where your content is, for example, a web server running on an Amazon EC2 instance or an Amazon S3 bucket that's configured as a website endpoint.
+  - The web server or other resource at 192.0.2.44 returns the web page for www.example.com to the web browser, and the web browser displays the page.
+  
+ Health Check Works?
+
+   * You create a health check and specify values that define how you want the health check to work, such as the following:
+     - The IP address or domain name of the endpoint, such as a web server, that you want Route 53 to monitor. (You can also monitor the status of other health checks, or the state of a CloudWatch alarm.)
+     -  The protocol that you want Amazon Route 53 to use to perform the check: HTTP, HTTPS, or TCP.
+     -  How often you want Route 53 to send a request to the endpoint. This is the request interval.
+     -  How many consecutive times the endpoint must fail to respond to requests before Route 53 considers it unhealthy. This is the failure threshold.
+     -  Optionally, how you want to be notified when Route 53 detects that the endpoint is unhealthy. When you configure notification, Route 53 automatically sets a CloudWatch alarm. CloudWatch uses Amazon SNS to notify users that an endpoint is unhealthy.
+
+   * Route 53 starts to send requests to the endpoint at the interval that you specified in the health check.
+     If the endpoint responds to the requests, Route 53 considers the endpoint to be healthy and takes no action.
+     
+   * If the endpoint doesn't respond to a request, Route 53 starts to count the number of consecutive requests that the endpoint doesn't respond to:
+     - If the count reaches the value that you specified for the failure threshold, Route 53 considers the endpoint unhealthy.
+     - If the endpoint starts to respond again before the count reaches the failure threshold, Route 53 resets the count to 0, and CloudWatch doesn't contact you.
+
+   * If Route 53 considers the endpoint unhealthy and if you configured notification for the health check, Route 53 notifies CloudWatch.
+     If you didn't configure notification, you can still see the status of your Route 53 health checks in the Route 53 console. For more information, see Monitoring Health Check Status and Getting Notifications.
+
+   * If you configured notification for the health check, CloudWatch triggers an alarm and uses Amazon SNS to send notification to the specified recipients.
+   
+   
+Domain Name System (DNS) Concepts
+    DNS Zones:
+      DNS Zones
+        * Every domain name, which is a part of the DNS system, has several DNS settings, also known as DNS records. 
+        * In order for these DNS records to be kept in order, the DNS zone was created. 
+        * It contains all the records and settings (e.g SOA) of a domain name. 
+        * Every domain name has one or more DNS zones, delegated to a specific DNS management host/service. 
+        * They could use different configuration - one Master DNS zone at ClouDNS or one Master DNS zone at ClouDNS and one Slave/Backup DNS zone at a different DNS provider or vice versa, etc
+    alias record
+      * ALIAS record allows you to add multiple hostnames for the same subdomain and can be used for the root domain(zone apex) too
+      * eg
+          Host:	      Type:	Points to:	TTL
+          example.net	ALIAS	example.com	1 Hour
+    authoritative name server:
+      * A name server that has definitive information about one part of the Domain Name System (DNS) 
+        and that responds to requests from a DNS resolver by returning the applicable information. 
+      * For example, an authoritative name server for the .com top-level domain (TLD) 
+        knows the names of the name servers for every registered .com domain.
+    DNS query:
+      * request that is submitted by a device, such as a computer or a smart phone, to the DNS for a resource that is associated with a domain name
+      
+    DNS resolver:
+      * managed by an internet service provider (ISP), that acts as an intermediary between user requests and DNS name servers. 
+      * also known as recursive name server as it sends recursive requests to DNS servers to get the ip
+    
+    hosted zone - same as DNS Zone
+    name servers:
+      * Servers in the Domain Name System (DNS) that help to translate domain names into the IP addresses 
+       that computers use to communicate with one another. 
+      * Name servers are either recursive name servers (also known as DNS resolver) or authoritative name servers.
+
+    private DNS
+     * A local version of the Domain Name System (DNS) that lets you route traffic for a domain and its subdomains
+    recursive name server - same as name server
+    record (DNS record) 
+      * An object in a hosted zone that you use to define how you want to route traffic for the domain or a subdomain
+    reusable delegation set
+    routing policy:
+      - Simple routing policy – Use to route internet traffic to a single resource that performs a given function for your domain, for example, a web server that serves content for the example.com website.
+      - Failover routing policy – Use when you want to configure active-passive failover.
+      - Geolocation routing policy – Use when you want to route internet traffic to your resources based on the location of your users.
+      - Geoproximity routing policy – Use when you want to route traffic based on the location of your resources and, optionally, shift traffic from resources in one location to resources in another.
+      - Latency routing policy – Use when you have resources in multiple locations and you want to route traffic to the resource that provides the best latency.
+      - Multivalue answer routing policy – Use when you want Route 53 to respond to DNS queries with up to eight healthy records selected at random.
+      - Weighted routing policy – Use to route traffic to multiple resources in proportions that you specify.
+
+    subdomain -
+    time to live (TTL)
+      * The amount of time, in seconds, that you want a DNS resolver to cache (store) the values for a record 
+        before submitting another request to Route 53 to get the current values for that record. 
+      * If the DNS resolver receives another request for the same domain before the TTL expires, 
+        the resolver returns the cached value.
+        
+Health Check concepts:
+  DNS failover:
+    * A method for routing traffic away from unhealthy resources and to healthy resources. 
+    * When you have more than one resource performing the same function—for example, more than one web server or mail server,
+     you can configure Route 53 health checks to check the health of your resources and configure records in your hosted zone to route traffic only to healthy resources
+  endpoint
+    * resources like web server, mail server
+  health check
+
+
+Alias Record:
+  * When Route 53 receives a DNS query for an alias record, Route 53 responds with the applicable value for that resource:
+
+      - An Amazon API Gateway custom regional API or edge-optimized API – Route 53 responds with one or more IP addresses for your API.
+      - An Amazon VPC interface endpoint – Route 53 responds with one or more IP addresses for your interface endpoint.
+      - A CloudFront distribution – Route 53 responds with one or more IP addresses for CloudFront edge servers that can serve your content.
+      - An Elastic Beanstalk environment – Route 53 responds with one or more IP addresses for the environment.
+      - An ELB load balancer – Route 53 responds with one or more IP addresses for the load balancer.
+      - An Amazon S3 bucket that is configured as a static website – Route 53 responds with one IP address for the Amazon S3 bucket.
+      - Another Route 53 record in the same hosted zone – Route 53 responds as if the query is for the record that is referenced by the alias record.
+
+  * If alias points to AWS resource, ttl cant be set, default will be used.
+  * If alias point to another record, the ttl of that record will be used
+  
+DNS Records Type:
+  
+    A Record Type - ipv4
+    AAAA Record Type - ipv6
+    CAA Record Type - lets you specify which certificate authorities (CAs) are allowed to issue certificates
+    CNAME Record Type - domain name
+    MX Record Type - priority and domain name of mail server
+    NAPTR Record Type - Name Authority Pointer
+    NS Record Type -  identifies the name servers for the hosted zone
+    PTR Record Type - same format as a domain name.
+    SOA Record Type - start of authority (SOA) record provides information about a domain and the corresponding hosted zone
+    SPF Record Type - formerly used to verify the identity of the sender of email messages
+    SRV Record Type - consists of four space-separated values. The first three values are decimal numbers representing priority, weight, and port. The fourth value is a domain name.
+    TXT Record Type - A TXT record contains one or more strings that are enclosed in double quotation marks ("). When you use the simple routing policy, include all values for a domain (example.com) or subdomain (www.example.com) in the same TXT record.
+    
+   
+
+
+
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
