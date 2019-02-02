@@ -134,12 +134,41 @@ DNS Records Type:
     SRV Record Type - consists of four space-separated values. The first three values are decimal numbers representing priority, weight, and port. The fourth value is a domain name.
     TXT Record Type - A TXT record contains one or more strings that are enclosed in double quotation marks ("). When you use the simple routing policy, include all values for a domain (example.com) or subdomain (www.example.com) in the same TXT record.
     
+Resolver:
+  * When you create a VPC using Amazon VPC, you automatically get DNS resolution within the VPC from Route 53 Resolver. 
+  * By default, Resolver answers DNS queries for VPC domain names such as domain names for EC2 instances or ELB load             balancers. 
+  * Resolver performs recursive lookups against public name servers for all other domain names.   
+  
+    You can also configure DNS resolution between your VPC and your network over a Direct Connect or VPN connection:
+    * Forward DNS queries from resolvers on your network to Route 53 Resolver
+    * Conditionally forward queries from a VPC to resolvers on your network
+    
+   Route 53 Resolver console includes a wizard that guides you through the following steps for getting started with Resolver:
+
+   *  Create endpoints: inbound, outbound, or both.
+      - An inbound endpoint - information that Resolver needs to route DNS queries from your network to your VPCs.
+      - outbound endpoint - information that Resolver needs to route DNS queries to your network from your VPCs.
+   * For outbound endpoints, create one or more forwarding rules, which specify the domain names 
+      for which you want to route DNS queries to your network.
+   * If you created an outbound endpoint, choose the VPC that you want to associate the rules with.
+   
+   How Resolver resolves DNS queries that originate on your network:
+   
+      - A web browser or another application on your network submits a DNS query for a domain name that you forwarded to Resolver.
+      - A resolver on your network forwards the query to the IP addresses in your inbound endpoint.
+      - The inbound endpoint forwards the query to Resolver.
+      - Resolver gets the applicable value for the domain name in the DNS query, either internally or by performing a recursive lookup against public name servers.
+      - Resolver returns the value (typically an IPv4 IP address) to the inbound endpoint.
+      - The inbound endpoint returns the value to the resolver on your network.
+      - The resolver on your network returns the value to the application.
+      - Using the value that was returned by Resolver, the application submits an HTTP request, for example, a request for an object in an Amazon S3 bucket.
+   
    
 
 
 
-     
-     
+
+  
      
      
      
