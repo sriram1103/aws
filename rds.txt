@@ -1,0 +1,67 @@
+RDS:
+  * a web service that makes it easier to set up, operate, and scale a relational database in the cloud. 
+  * provides cost-efficient, resizable capacity for an industry-standard relational database and manages common database administration tasks.
+  
+Overview of Amazon RDS:
+  - When you buy a server, you get CPU, memory, storage, and IOPS, all bundled together. 
+    With Amazon RDS, these are split apart so that you can scale them independently. If you need more CPU, less IOPS, or more storage, you can easily allocate them.
+  - Amazon RDS manages backups, software patching, automatic failure detection, and recovery.
+  - To deliver a managed service experience, Amazon RDS doesn't provide shell access to DB instances, 
+    and it restricts access to certain system procedures and tables that require advanced privileges.
+  - You can have automated backups performed when you need them, or manually create your own backup snapshot. 
+    You can use these backups to restore a database. The Amazon RDS restore process works reliably and efficiently.
+  - You can get high availability with a primary instance and a synchronous secondary instance that you can fail over to when problems occur. 
+    You can also use MySQL, MariaDB, or PostgreSQL Read Replicas to increase read scaling.
+  - You can use the database products you are already familiar with: MySQL, MariaDB, PostgreSQL, Oracle, Microsoft SQL Server.
+  - In addition to the security in your database package, you can help control who can access your RDS databases by using AWS Identity and Access Management (IAM) to define users and permissions. You can also help protect your databases by putting them in a virtual private cloud.
+
+Amazon RDS DB Instances
+  * A DB instance is an isolated database environment running in the cloud. 
+  * It is the basic building block of Amazon RDS. 
+  * A DB instance can contain multiple user-created databases, and can be accessed using the same client tools and applications.
+  * DB instances are simple to create and modify with the Amazon AWS command line tools, Amazon RDS API actions, or the AWS Management Console.
+  * You can have up to 40 Amazon RDS DB instances. 
+  * Each DB instance has a DB instance identifier.
+  * This customer-supplied name uniquely identifies the DB instance when interacting with the Amazon RDS API and AWS CLI commands. 
+  * The DB instance identifier must be unique for that customer in an AWS Region.
+  
+  * When creating a DB instance, some database engines require that a database name be specified. 
+  * A DB instance can host multiple databases, or a single Oracle database with multiple schemas. 
+  * The database name value depends on the database engine:
+      - MySQL and MariaDB database engines, the database name is the name of a database hosted in your DB instance. 
+        Databases hosted by the same DB instance must have a unique name within that instance.
+      - Oracle database engine, database name is used to set the value of ORACLE_SID, 
+        which must be supplied when connecting to the Oracle RDS instance.
+      - Microsoft SQL Server database engine, database name is not a supported parameter.
+      - PostgreSQL database engine, the database name is the name of a database hosted in your DB instance. 
+        A database name is not required when creating a DB instance. 
+        Databases hosted by the same DB instance must have a unique name within that instance.
+
+  Topics:
+    DB Instance Class
+      - determines the computation and memory capacity of an Amazon RDS DB instance. 
+      - The DB instance class you need depends on your processing power and memory requirements.
+      - Types:
+        * Standard DB instance classes 
+        * Burstable Performance DB instance classes 
+        * Memory Optimized DB instance classes
+    DB Instance Status      
+    Regions and Availability Zones
+    DB instance storage
+      * use Amazon Elastic Block Store (Amazon EBS) volumes for database and log storage. 
+      * Depending on the amount of storage requested, Amazon RDS automatically stripes across multiple 
+        Amazon EBS volumes to enhance performance.
+      * Types:
+        - General Purpose SSD - also called gp2, volumes offer cost-effective storage that is ideal for a broad range of workloads
+        - Provisioned IOPS - designed to meet the needs of I/O-intensive workloads, particularly database workloads, that require low I/O latency and consistent I/O throughput.
+        - Magnetic - supports magnetic storage for backward compatibility.
+    High Availability (Multi-AZ) for Amazon RDS
+    Amazon RDS DB Instance Lifecycle
+    Tagging Amazon RDS Resources
+    Working with Read Replicas of MariaDB, MySQL, and PostgreSQL DB Instances
+    Working with Option Groups
+    Working with DB Parameter Groups
+    Working with Amazon Resource Names (ARNs) in Amazon RDS
+    Working with Storage
+    DB Instance Billing for Amazon RDS
+
