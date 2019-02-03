@@ -89,68 +89,116 @@ Amazon S3 Transfer Acceleration
   - You transfer gigabytes to terabytes of data on a regular basis across continents.
   - You are unable to utilize all of your available bandwidth over the Internet when uploading to Amazon S3.
 
-Storage Classes for Frequently Accessed Objects
-  For performance-sensitive use cases (those that require millisecond access time) and frequently accessed data, Amazon S3 provides the following storage classes:
-    - STANDARD - The default storage class. 
-                 If you don't specify the storage class when you upload an object, Amazon S3 assigns the STANDARD storage class.
-    - REDUCED_REDUNDANCY - The Reduced Redundancy Storage (RRS) storage class is designed for noncritical, 
-                reproducible data that can be stored with less redundancy than the STANDARD storage class.
-  
-Storage Classes for Infrequently Accessed Objects
-  For example, you might choose the STANDARD_IA and ONEZONE_IA storage classes:
-  - For storing backups.
-  - For older data that is accessed infrequently  
-  
-  STANDARD_IA - Amazon S3 stores the object data redundantly across multiple geographically separated Availability Zones 
-                STANDARD_IA objects are resilient to the loss of an Availability Zone.
-                offers greater availability, durability, and resiliency than the ONEZONE_IA class.
-  ONEZONE_IA  - Amazon S3 stores the object data in only one Availability Zone, which makes it less expensive
-                However, the data is not resilient to the physical loss of the Availability Zone resulting from disasters, such as earth quakes and floods. 
-                The ONEZONE_IA storage class is as durable as STANDARD_IA, but it is less available and less resilient.
-   
-Storage Class That Automatically Optimizes Frequently and Infrequently Accessed Objects
-  INTELLIGENT_TIERING 
-    - storage class is designed to optimize storage costs by automatically moving data to the most cost-effective 
-      storage access tier, without performance impact or operational overhead. 
-    - delivers automatic cost savings by moving data on a granular object level between two access tiers,
-      a frequent access tier and a lower-cost infrequent access tier, when access patterns change. 
-    - ideal if you want to optimize storage costs automatically for long-lived data when access patterns 
-      are unknown or unpredictable.
+Objects:
+  Object Key and Metadata
+  Storage Classes
+  Subresources
+  Versioning
+  Object Tagging
+  Lifecycle Management
+  Cross-Origin Resource Sharing (CORS)
+  Operations on Objects
       
+  Storage Classes for Frequently Accessed Objects
+    For performance-sensitive use cases and frequently accessed data, Amazon S3 provides the following storage classes:
+      - STANDARD - The default storage class. 
+                   If you don't specify the storage class when you upload an object, Amazon S3 assigns the STANDARD storage                       class.
+      - REDUCED_REDUNDANCY - The Reduced Redundancy Storage (RRS) storage class is designed for noncritical, 
+                  reproducible data that can be stored with less redundancy than the STANDARD storage class.
 
-GLACIER Storage Class
- GLACIER storage - suitable for archiving data where data access is infrequent. 
-                   offers the same durability and resiliency as the STANDARD storage class.
+  Storage Classes for Infrequently Accessed Objects
+    For example, you might choose the STANDARD_IA and ONEZONE_IA storage classes:
+    - For storing backups.
+    - For older data that is accessed infrequently  
 
-Object Lifecycle Management
- - To manage your objects so that they are stored cost effectively throughout their lifecycle, configure their lifecycle. 
- - A lifecycle configuration is a set of rules that define actions that Amazon S3 applies to a group of objects. 
- - There are two types of actions:
-    - Transition actions - Define when objects transition to another storage class. 
-                          eg, transition objects to the STANDARD_IA storage class 30 days after you created them, or archive objects to the GLACIER storage class
-                          There are costs associated with the lifecycle transition requests. 
-    - Expiration actions - Define when objects expire. Amazon S3 deletes expired objects on your behalf.
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
+    STANDARD_IA - Amazon S3 stores the object data redundantly across multiple geographically separated Availability Zones 
+                  STANDARD_IA objects are resilient to the loss of an Availability Zone.
+                  offers greater availability, durability, and resiliency than the ONEZONE_IA class.
+    ONEZONE_IA  - Amazon S3 stores the object data in only one Availability Zone, which makes it less expensive
+                  However, the data is not resilient to the physical loss of the Availability Zone resulting from disasters,                    such as earth quakes and floods. 
+                  The ONEZONE_IA storage class is as durable as STANDARD_IA, but it is less available and less resilient.
+
+  Storage Class That Automatically Optimizes Frequently and Infrequently Accessed Objects
+    INTELLIGENT_TIERING 
+      - storage class is designed to optimize storage costs by automatically moving data to the most cost-effective 
+        storage access tier, without performance impact or operational overhead. 
+      - delivers automatic cost savings by moving data on a granular object level between two access tiers,
+        a frequent access tier and a lower-cost infrequent access tier, when access patterns change. 
+      - ideal if you want to optimize storage costs automatically for long-lived data when access patterns 
+        are unknown or unpredictable.
+
+
+  GLACIER Storage Class
+   GLACIER storage - suitable for archiving data where data access is infrequent. 
+                     offers the same durability and resiliency as the STANDARD storage class.
+
+  Object Lifecycle Management
+   - To manage your objects so that they are stored cost effectively throughout their lifecycle, configure their lifecycle. 
+   - A lifecycle configuration is a set of rules that define actions that Amazon S3 applies to a group of objects. 
+   - There are two types of actions:
+      - Transition actions - Define when objects transition to another storage class. 
+                            eg, transition objects to the STANDARD_IA storage class 30 days after you created them, or                                  archive objects to the GLACIER storage class
+                            There are costs associated with the lifecycle transition requests. 
+      - Expiration actions - Define when objects expire. Amazon S3 deletes expired objects on your behalf.
+
+Amazon S3 Inventory
+  * Amazon S3 inventory is one of the tools Amazon S3 provides to help manage your storage. 
+  * You can use it to audit and report on the replication and encryption status of your objects for business, compliance, and     regulatory needs. 
+  * You can also simplify and speed up business workflows and big data jobs using Amazon S3 inventory, which provides a           scheduled alternative to the Amazon S3 synchronous List API operation.
+
+Managing Access Permissions to Your Amazon S3 Resources
+  * By default, all Amazon S3 resources—buckets, objects, and related subresources are private: 
+  * only the resource owner, an AWS account that created it, can access the resource. 
+  * The resource owner can optionally grant access permissions to others by writing an access policy.
+
+  * Amazon S3 offers access policy options broadly categorized as resource-based policies and user policies. 
+  * Access policies you attach to your resources (buckets and objects) are referred to as resource-based policies. 
+  * For example, bucket policies and access control lists (ACLs) are resource-based policies.
+  * You can also attach access policies to users in your account. These are called user policies.
+
+Protecting Data in Amazon S3
+
+  Protecting Data Using Encryption
+    - Protecting Data Using Server-Side Encryption
+    - Protecting Data Using Client-Side Encryption
+  Using Versioning
+  Introduction to Amazon S3 Object Lock
+    - WORM (Write once Read Many) model
+    - prevent an object from being deleted or overwritten for a fixed amount of time or indefinitely
+    - two ways to manage object retention: retention periods and legal holds. 
+    - Object Lock works only in versioned buckets, and retention periods and legal holds apply to individual object versions
+    - To use Amazon S3 Object Lock, you take the following steps:
+      - Create a new bucket with S3 Object Lock enabled.
+      - (Optional) Configure a default retention period for objects placed in the bucket.
+      - Place the objects that you want to lock in the bucket.
+      - Apply a retention period, a legal hold, or both, to the objects that you want to protect.
+
+Batch Job:
+  * Amazon S3 batch operations to perform large-scale batch operations on Amazon S3 objects.
+  * Amazon S3 batch operations can execute a single operation on lists of Amazon S3 objects that you specify. 
+  * A single job can perform the specified operation on billions of objects containing exabytes of data. 
+  * Amazon S3 tracks progress, sends notifications, and stores a detailed completion report of all actions, providing a fully     managed, auditable, serverless experience.
+  
+
+Hosting a Static Website on Amazon S3
+  * You can host a static website on Amazon Simple Storage Service (Amazon S3). 
+  * On a static website, individual webpages include static content. 
+  * They might also contain client-side scripts. 
+  * By contrast, a dynamic website relies on server-side processing, including server-side scripts such as PHP, JSP, or           ASP.NET. Amazon S3 does not support server-side scripting.
+  
+  Website Endpoints
+  * When you configure a bucket for website hosting, the website is available via the region-specific website endpoint.         * Website endpoints are different from the endpoints where you send REST API requests
+  The two general forms of an Amazon S3 website endpoint are as follows:
+   * bucket-name.s3-website-region.amazonaws.com
+   * bucket-name.s3-website.region.amazonaws.com
+
+   Required configurations:
+     - Enabling Website Hosting
+     - Configuring Index Document Support
+     - Permissions Required for Website Access
+
+  Optional configurations:
+    - (Optional) Configuring Web Traffic Logging
+    - (Optional) Custom Error Document Support
+    - (Optional) Configuring a Webpage Redirect
    
