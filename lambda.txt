@@ -25,3 +25,165 @@ Concepts:
     AWS SAM – A model to define serverless applications. 
               AWS SAM is natively supported by AWS CloudFormation and defines simplified syntax for expressing serverless resources. 
               
+
+Limits:
+    Resource	                         Default Limit
+    Concurrent executions             1000
+    Function and layer storage        75 GB
+    Function memory allocation        128 MB to 3008 MB, in 64 MB increments.
+    Function timeout                  900 seconds (15 minutes)
+    Function environment variables    4 KB
+    Function resource-based policy    20 KB
+    Function layers 5 layers          Invocation payload (request and response)
+                                      6 MB (synchronous)
+                                      256 KB (asynchronous)
+    Deployment package size           50 MB (zipped, for direct upload)
+                                      250 MB (unzipped, including layers)
+                                      3 MB (console editor)
+    Test events (console editor)      10
+    /tmp directory storage            512 MB
+    File descriptors                  1024
+    Execution processes/threads       1024    
+    
+    
+Programming Model
+  Handler: Funtion that is called to execute
+  Context: via context you can interact with Lambda func. 
+  Logging: logs to AWS CloudWatch
+  Exceptions: report errors in execution
+  Concurrency: each instance of the func handles only one request
+  
+  
+Environment variables :
+ To pass dynamic variables to funcs
+ 
+Versioning: 
+ * work with variations of your func, like prod,test,etc..
+ * once a version is published cant be changed
+ 
+Aliases:
+ * can be used in event source mapping to invoke verison of func
+ * alias are used as link as in unix systems
+ * alias will be mentioned in the event source mapping and linked to versions in lambda func
+ * when the version is changed, alias is made to point to newer version
+ * no change will be required from event source mapping
+ 
+ 
+Layers:
+ * configure your Lambda function to pull in additional code and content in the form of layers.
+ * A layer is a ZIP archive that contains libraries, a custom runtime, or other dependencies. 
+ * With layers, you can use libraries in your function without needing to include them in your deployment package.
+ * Layers let you keep your deployment package small, which makes development easier
+ * A function can use up to 5 layers at a time. 
+ * The total unzipped size of the function and all layers can't exceed the unzipped deployment package size limit of 250 MB.
+ * eg zip file structure for python layer
+     pillow.zip
+      │ python/PIL
+      └ python/Pillow-5.3.0.dist-info
+
+Invoking AWS Lambda Functions
+  * event source is the AWS service or custom application that publishes events
+  * Lambda func process such events
+  * eg scenarios: File Processing, Data Analytics, Websites, Mobile Apps
+  
+  Invocation Types:
+   * supports synchronous and asynchronous invocation of a Lambda function
+   * control the invocation type only when you invoke a Lambda function (on-demand invocation)
+   * you can specify the invocation type as synchronous or asynchronous.
+   
+Event Source Mapping:
+ * maps an event source to a Lambda function.
+ * enables automatic invocation of your Lambda function when events occur.
+ * identifies the type of events to publish and the Lambda function to invoke when events occur. 
+ * Lambda function then receives the event information as a parameter and your Lambda function code then processes the event.
+
+
+Dead Letter Queue:
+ * Any Lambda function invoked asynchronously is retried twice before the event is discarded.
+ * If the retries fail and you're unsure why, use Dead Letter Queues (DLQ) to 
+   direct unprocessed events to an Amazon SQS queue or an Amazon SNS topic to analyze the failure.
+   
+Lambda Runtimes:
+ * Lambda supports multiple languages through the use of runtimes. 
+ * You choose a runtime when you create a function, and you can change runtimes by updating your function's configuration.
+ * The underlying execution environment, which is shared by all runtimes, 
+   provides additional libraries and environment variables that you can access from your function code.
+ * When your function is invoked, Lambda attempts to re-use the execution environment from a previous invocation if one is available.
+ * This saves time preparing the execution environment, and allows you to save resources like database connections 
+   and temporary files in the execution context to avoid creating them every time your function runs.
+ 
+ 
+Execution Environment:
+ The underlying AWS Lambda execution environment includes the following software and libraries.
+
+    Operating system – Amazon Linux
+    AMI – amzn-ami-hvm-2017.03.1.20170812-x86_64-gp2
+    Linux kernel – 4.14.77-70.59.amzn1.x86_64
+    AWS SDK for JavaScript – 2.290.0
+    SDK for Python (Boto 3) – 3-1.7.74 botocore-1.10.74
+    
+ Environment Variables Available to Lambda Functions
+ 
+Execution Context:
+ * Lambda function is invoked, AWS Lambda launches an execution context based on the configuration settings you provide. 
+ * The execution context is a temporary runtime environment that initializes any external dependencies of your Lambda function code,
+   such as database connections or HTTP endpoints. 
+ * It takes time to set up an execution context and do the necessary "bootstrapping", which adds some latency each time 
+   the Lambda function is invoked. 
+ * typically see this latency when a Lambda function is invoked for the first time or after it has been updated 
+   because AWS Lambda tries to reuse the execution context for subsequent invocations of the Lambda function.
+ * After a Lambda function is executed, AWS Lambda maintains the execution context for some time in anticipation of
+   another Lambda function invocation  
+   
+ Benefits:
+ * Any declarations in your Lambda function code (outside the handler code) remains initialized
+ * Each execution context provides 512 MB of additional disk space in the /tmp directory. 
+   The directory content remains when the execution context is frozen, 
+    providing transient cache that can be used for multiple invocations. 
+ * Background processes or callbacks initiated by your Lambda function that did not complete when the function ended resume 
+   if AWS Lambda chooses to reuse the execution context. 
+   You should make sure any background processes or callbacks (in case of Node.js) in your code are complete before the code exits.
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
